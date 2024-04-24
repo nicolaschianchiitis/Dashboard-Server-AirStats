@@ -6,11 +6,10 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
@@ -55,8 +54,8 @@ public class MainGUI extends JFrame {
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         // Icona programma
-        this.setIconImage(new ImageIcon("assets/img/logo.png").getImage());
-        // Col JAR: this.setIconImage(new ImageIcon(getClass().getClassLoader().getResource("assets/img/logo.png")).getImage());
+        this.setIconImage(new ImageIcon("assets/img/icon.png").getImage());
+        // Col JAR: this.setIconImage(new ImageIcon(getClass().getClassLoader().getResource("assets/img/icon.png")).getImage());
         // Titolo nella finestra
         JLabel jlTitolo = new JLabel("Gestione server");
         jlTitolo.setHorizontalAlignment(SwingConstants.CENTER);
@@ -227,15 +226,18 @@ public class MainGUI extends JFrame {
                     */
                     String[] comandi = null;
                     try {
-                        comandi = new String(Files.readAllBytes(Paths.get("abilita_unattended_upgrades.sh"))).split("\n");
+                        comandi = new String(Files.readAllBytes(Paths.get("scripts/abilita_unattended_upgrades.sh"))).split("\n");
                     } catch (IOException ioex) {
                         System.err.println("ERRORE! C'è stato un problema nell'apertura del file...\n\n");
                         ioex.printStackTrace();
                         break;
                     }
 
+                    /*
                     if (comandi != null) {
                         try {
+                            Process x = r.exec(new String[]{"cd /home/$(whoami)"});
+                            x.waitFor();
                             Process p = r.exec(comandi);
                             p.waitFor();
                         } catch (IOException ioex) {
@@ -248,6 +250,23 @@ public class MainGUI extends JFrame {
                             break;
                         }
                     } else {
+                        break;
+                    }
+                    */
+                    ProcessBuilder pb = new ProcessBuilder();
+                    // Per Linux
+                    pb.directory(new File(System.getProperty("user.dir")));
+                    
+                    pb.command("bash -vx ./scripts/aggiorna_pgm.sh > normal.output 2> error.output");
+                    try {
+                        Process p = pb.start();
+                        p.waitFor();
+                    } catch (IOException ex){
+                        ex.printStackTrace();
+                        break;
+                    } catch (InterruptedException interrex) {
+                        System.err.println("ERRORE! Il processo è stato interrotto...\n\n");
+                        interrex.printStackTrace();
                         break;
                     }
                     break;
