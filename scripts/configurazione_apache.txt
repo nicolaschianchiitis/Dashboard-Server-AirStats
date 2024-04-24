@@ -1,0 +1,46 @@
+- Crea la cartella con repo git del sito in /var/www
+  sudo mkdir /var/www/sito-github
+- Entraci dentro
+  cd /var/www/sito-github
+- Crea un repository git vuoto
+  sudo git init
+- Cambia il nome del branch da "master" a "main"
+  sudo git branch -m main
+- Aggiungi l'indirizzo della repo su GitHub:
+  sudo git remote add origin https://github.com/nicolaschianchiitis/Sito-AirStats.git
+- Esegui un pull (scarica tutti i dati)
+  sudo git pull origin main
+- Copia tutti i dati in /var/www/html, coi privilegi di amministratore
+  sudo nemo /var/www/
+NOTA: con questo comando apri la cartella coi privilegi di amministratore, ma devi copiare a mano i file, per evitare di ritrovarsi brutte sorprese! Per ora facciamo così, poi vediamo... i file vanno comunque copiati in html così Apache li carica
+- Modifica i file di configurazione
+  cd /etc/apache2/sites-available
+  sudo cp 000-default.conf gci.conf
+  sudo nano gci.conf
+- Cambia l'email di ServerAdmin con la nostra "airstats23@gmail.com"
+- Aggiungi il ServerName, in cima al file (riga 1), per renderlo globale:
+  ServerName airstats.it
+- Salva il file (Ctrl - O) ed esci da Nano con Ctrl - X
+- Registra le modifiche:
+  sudo a2ensite gci.conf
+- Riavvia Apache
+  service apache2 reload
+- Aprire il browser e digitare "airstats.it"... vediamo se va! =D
+
+Ora dobbiamo installare il certificato SSL/TLS per HTTPS...
+------------ NOTA: SERVE UN DOMINIO (PREFERIBILMENTE PAGATO) -------------
+- Installiamo e attiviamo il modulo SSL
+  sudo a2enmod ssl
+  sudo service apache2 reload
+- Installiamo Certbot
+  sudo apt install certbot python3-certbot-apache -y
+- Otteniamo ed installiamo Let's Encrypt
+  sudo certbot --apache -d airstats.it
+- Inseriamo i dati...
+  airstats23@gmail.com
+- Accettiamo i termini (digitiamo Y e confermiamo con Invio)
+- Rifiutiamo di condividere la mail per aggiornamenti (digitiamo N e confermiamo con Invio)
+- Indichiamo i nomi di dominio da certificare (noi abbiamo solo airstats.it)
+- Impostiamo il rinnovo automatico
+  sudo certbot renew --dry-run
+
